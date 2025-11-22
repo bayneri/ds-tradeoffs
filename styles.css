@@ -1,0 +1,29 @@
+body {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(94, 234, 212, 0.25), transparent 35%),
+    radial-gradient(circle at 80% 0%, rgba(125, 211, 252, 0.25), transparent 35%),
+    #0b1021;
+}
+
+.view-btn,
+.pac-btn,
+.traffic-btn,
+.dura-btn,
+.iso-btn,
+.locality-btn,
+.topology-btn,
+.queue-btn,
+.cache-btn,
+.circuit-btn,
+.index-btn,
+.schema-btn,
+.schema-order-btn,
+.security-tls-btn,
+.security-auth-btn,
+.tenancy-btn {
+  transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+}
+
+.jump-btn {
+  transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+}

@@ -1,0 +1,1075 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Trade-off Explorer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="min-h-screen text-slate-100">
+  <div class="max-w-5xl mx-auto px-4 py-10 space-y-6">
+    <header class="mb-4">
+      <p class="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Distributed systems</p>
+      <div class="flex flex-wrap items-baseline gap-3">
+        <h1 class="text-4xl sm:text-5xl font-semibold mt-2">Trade-off Explorer</h1>
+        <span class="px-3 py-1 rounded-full text-xs border border-cyan-300/40 bg-cyan-400/10 text-cyan-100">Interactive views</span>
+      </div>
+      <p class="mt-3 text-slate-300/80 max-w-3xl">Distributed systems are trade-offs. Flip through the views to see how choices bend consistency, availability, latency, durability, and safety, and where each stance can make sense.</p>
+    </header>
+
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-4 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p class="text-xs uppercase tracking-[0.25em] text-cyan-200/80">View picker</p>
+          <p class="text-sm text-slate-200/90">Current: <span id="current-view-label" class="font-semibold text-white">CAP</span></p>
+        </div>
+        <button id="toggle-picker" class="px-3 py-2 text-sm rounded-lg border border-white/15 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition shadow-sm shadow-cyan-900/30">Hide views</button>
+      </div>
+      <div id="picker-body" class="mt-4 grid gap-4 md:grid-cols-2">
+        <div class="space-y-2">
+          <p class="text-xs uppercase tracking-wide text-slate-300/80">Core trade-offs</p>
+          <div class="flex flex-wrap gap-2">
+            <button data-view-btn="cap" class="view-btn px-4 py-2 rounded-lg border border-white/15 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition shadow-sm shadow-cyan-900/30">CAP</button>
+            <button data-view-btn="pacelc" class="view-btn px-4 py-2 rounded-lg border border-white/15 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition shadow-sm shadow-cyan-900/30">PACELC</button>
+            <button data-view-btn="spectrum" class="view-btn px-4 py-2 rounded-lg border border-white/15 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition shadow-sm shadow-cyan-900/30">Consistency spectrum</button>
+            <button data-view-btn="quorum" class="view-btn px-4 py-2 rounded-lg border border-white/15 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition shadow-sm shadow-cyan-900/30">Quorums</button>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <p class="text-xs uppercase tracking-wide text-slate-300/80">Replication & durability</p>
+          <div class="flex flex-wrap gap-2">
+            <button data-view-btn="durability" class="view-btn px-4 py-2 rounded-lg border border-white/15 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition shadow-sm shadow-cyan-900/30">Durability</button>
+            <button data-view-btn="locality" class="view-btn px-4 py-2 rounded-lg border border-white/15 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition shadow-sm shadow-cyan-900/30">Locality</button>
+            <button data-view-btn="topology" class="view-btn px-4 py-2 rounded-lg border border-white/15 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition shadow-sm shadow-cyan-900/30">Topology</button>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <p class="text-xs uppercase tracking-wide text-slate-300/80">Traffic & resilience</p>
+          <div class="flex flex-wrap gap-2">
+            <button data-view-btn="traffic" class="view-btn px-4 py-2 rounded-lg border border-white/15 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition shadow-sm shadow-cyan-900/30">Traffic coping</button>
+            <button data-view-btn="retries" class="view-btn px-4 py-2 rounded-lg border border-white/15 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition shadow-sm shadow-cyan-900/30">Retries</button>
+            <button data-view-btn="queueing" class="view-btn px-4 py-2 rounded-lg border border-white/15 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition shadow-sm shadow-cyan-900/30">Queueing</button>
+            <button data-view-btn="circuit" class="view-btn px-4 py-2 rounded-lg border border-white/15 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition shadow-sm shadow-cyan-900/30">Circuit breaker</button>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <p class="text-xs uppercase tracking-wide text-slate-300/80">Data & correctness</p>
+          <div class="flex flex-wrap gap-2">
+            <button data-view-btn="isolation" class="view-btn px-4 py-2 rounded-lg border border-white/15 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition shadow-sm shadow-cyan-900/30">Isolation</button>
+            <button data-view-btn="cache" class="view-btn px-4 py-2 rounded-lg border border-white/15 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition shadow-sm shadow-cyan-900/30">Cache</button>
+            <button data-view-btn="indexing" class="view-btn px-4 py-2 rounded-lg border border-white/15 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition shadow-sm shadow-cyan-900/30">Indexing</button>
+            <button data-view-btn="schema" class="view-btn px-4 py-2 rounded-lg border border-white/15 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition shadow-sm shadow-cyan-900/30">Schema</button>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <p class="text-xs uppercase tracking-wide text-slate-300/80">Security & tenancy</p>
+          <div class="flex flex-wrap gap-2">
+            <button data-view-btn="security" class="view-btn px-4 py-2 rounded-lg border border-white/15 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition shadow-sm shadow-cyan-900/30">Security</button>
+            <button data-view-btn="tenancy" class="view-btn px-4 py-2 rounded-lg border border-white/15 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition shadow-sm shadow-cyan-900/30">Resource isolation</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <main class="space-y-6">
+      <section data-view-panel="cap" class="grid gap-6 md:grid-cols-5 bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm">
+        <div class="md:col-span-3 space-y-4">
+          <div>
+            <h2 class="text-lg font-semibold text-cyan-100">Pick your CAP posture</h2>
+            <p class="text-sm text-slate-300/80 mt-1">Partition tolerance is non-negotiable. Choose consistency or availability when partitions strike.</p>
+          </div>
+          <div class="space-y-4">
+            <label class="flex items-start gap-3 p-3 rounded-xl border border-white/10 bg-white/5 hover:border-cyan-300/40 transition">
+              <input id="cap-consistency" type="checkbox" class="mt-1 h-5 w-5 rounded border-cyan-200/40 bg-slate-900 text-cyan-300 focus:ring-cyan-400/80" />
+              <div>
+                <div class="font-medium">Consistency</div>
+                <p class="text-sm text-slate-300/80">Every read gets the latest write, even if some requests must wait.</p>
+              </div>
+            </label>
+
+            <label class="flex items-start gap-3 p-3 rounded-xl border border-white/10 bg-white/5 hover:border-cyan-300/40 transition">
+              <input id="cap-availability" type="checkbox" class="mt-1 h-5 w-5 rounded border-cyan-200/40 bg-slate-900 text-cyan-300 focus:ring-cyan-400/80" />
+              <div>
+                <div class="font-medium">Availability</div>
+                <p class="text-sm text-slate-300/80">Every request gets a response, even if it might be stale.</p>
+              </div>
+            </label>
+
+            <label class="flex items-start gap-3 p-3 rounded-xl border border-cyan-400/60 bg-cyan-500/10">
+              <input id="cap-partition" type="checkbox" checked disabled class="mt-1 h-5 w-5 rounded border-cyan-200/40 bg-slate-900 text-cyan-300 accent-cyan-300 disabled:opacity-80" />
+              <div>
+                <div class="font-medium text-cyan-100">Partition tolerance (always on)</div>
+                <p class="text-sm text-slate-200/90">Networks partition. Your system must keep operating across that boundary.</p>
+              </div>
+            </label>
+          </div>
+
+          <div class="flex flex-wrap gap-3">
+            <button id="cap-reset" class="px-4 py-2 rounded-lg border border-white/20 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition">Reset</button>
+            <button id="cap-explain" class="px-4 py-2 rounded-lg bg-cyan-400 text-slate-900 font-semibold hover:bg-cyan-300 transition shadow-lg shadow-cyan-900/40">Why this constraint?</button>
+          </div>
+        </div>
+
+        <aside class="md:col-span-2 bg-white/5 border border-white/10 rounded-2xl p-5 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full bg-cyan-400/20 border border-cyan-300/50 flex items-center justify-center text-cyan-100 font-semibold">CAP</div>
+            <div>
+              <p class="text-sm text-slate-300/80">Current stance</p>
+              <p id="cap-stance" class="text-lg font-semibold text-white">None selected</p>
+            </div>
+          </div>
+          <div id="cap-message" role="status" aria-live="polite" class="hidden text-sm rounded-xl border border-amber-300/40 bg-amber-400/10 text-amber-50 px-4 py-3"></div>
+          <div class="text-sm text-slate-300/80 leading-relaxed">
+            <p class="mb-2">When a partition occurs you must choose between consistency (C) and availability (A). Partition tolerance is locked on to match reality.</p>
+            <p class="text-slate-200/90">Toggle C or A to see how trade-offs play out. Reset clears your choice but retains partition tolerance.</p>
+          </div>
+        </aside>
+      </section>
+
+      <section data-view-panel="pacelc" class="grid gap-6 md:grid-cols-2 bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm hidden">
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-semibold text-cyan-100">PACELC: Partition? Choose A or C. Else? Choose L or C.</h2>
+            <p class="text-sm text-slate-300/80 mt-1">PA/PC during partition; EL/EC when healthy. Pick your stances and see the resulting posture.</p>
+          </div>
+          <div class="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+            <p class="text-sm text-slate-200/90 font-semibold">During partition (P → A or C)</p>
+            <div class="flex flex-wrap gap-2">
+              <button data-pac-group="partition" data-value="availability" class="pac-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Availability</button>
+              <button data-pac-group="partition" data-value="consistency" class="pac-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Consistency</button>
+            </div>
+          </div>
+          <div class="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+            <p class="text-sm text-slate-200/90 font-semibold">Else (E) when healthy → L or C</p>
+            <div class="flex flex-wrap gap-2">
+              <button data-pac-group="else" data-value="latency" class="pac-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Low latency</button>
+              <button data-pac-group="else" data-value="consistency" class="pac-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Consistency</button>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="pac-reset" class="px-4 py-2 rounded-lg border border-white/20 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition">Reset</button>
+            <button id="pac-explain" class="px-4 py-2 rounded-lg bg-cyan-400 text-slate-900 font-semibold hover:bg-cyan-300 transition shadow-lg shadow-cyan-900/40">Explain PACELC</button>
+          </div>
+        </div>
+
+        <aside class="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full bg-cyan-400/20 border border-cyan-300/50 flex items-center justify-center text-cyan-100 font-semibold">PAC</div>
+            <div>
+              <p class="text-sm text-slate-300/80">Current stance</p>
+              <p id="pac-stance" class="text-lg font-semibold text-white">Nothing selected</p>
+            </div>
+          </div>
+          <div id="pac-message" role="status" aria-live="polite" class="hidden text-sm rounded-xl border border-amber-300/40 bg-amber-400/10 text-amber-50 px-4 py-3"></div>
+          <div class="grid grid-cols-2 gap-3 text-sm text-slate-200/90">
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Partition stance</p>
+              <p id="pac-partition" class="font-semibold mt-1">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Else stance</p>
+              <p id="pac-else" class="font-semibold mt-1">—</p>
+            </div>
+          </div>
+          <div class="text-sm text-slate-300/80 leading-relaxed">
+            <p class="mb-2">PACELC extends CAP: during a partition you pick Availability or Consistency; else you pick Latency or Consistency. Pick combinations to see the resulting shorthand (e.g., PA/EL).</p>
+          </div>
+        </aside>
+      </section>
+
+      <section data-view-panel="spectrum" class="grid gap-6 md:grid-cols-2 bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm hidden">
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-semibold text-cyan-100">Consistency spectrum</h2>
+            <p class="text-sm text-slate-300/80 mt-1">Slide between eventual and strong consistency to see latency and staleness shift.</p>
+          </div>
+          <div class="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-24">Lean</span>
+              <input id="spec-slider" type="range" min="0" max="100" step="1" value="60" class="flex-1 accent-cyan-300" />
+              <span id="spec-label" class="text-sm font-semibold text-white w-24 text-right">Balanced</span>
+            </label>
+            <p class="text-xs text-slate-300/80">Left: faster reads/writes but higher staleness. Right: slower but fresher.</p>
+          </div>
+          <div class="grid grid-cols-3 gap-3 text-sm text-slate-200/90">
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Read latency</p>
+              <p id="spec-read" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Write latency</p>
+              <p id="spec-write" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Stale risk</p>
+              <p id="spec-stale" class="font-semibold mt-1 text-white">—</p>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="spec-reset" class="px-4 py-2 rounded-lg border border-white/20 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition">Reset</button>
+            <button id="spec-explain" class="px-4 py-2 rounded-lg bg-cyan-400 text-slate-900 font-semibold hover:bg-cyan-300 transition shadow-lg shadow-cyan-900/40">What am I seeing?</button>
+          </div>
+        </div>
+
+        <aside class="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full bg-cyan-400/20 border border-cyan-300/50 flex items-center justify-center text-cyan-100 font-semibold">S</div>
+            <div>
+              <p class="text-sm text-slate-300/80">Current posture</p>
+              <p id="spec-stance" class="text-lg font-semibold text-white">Balanced</p>
+            </div>
+          </div>
+          <div id="spec-message" role="status" aria-live="polite" class="hidden text-sm rounded-xl border border-amber-300/40 bg-amber-400/10 text-amber-50 px-4 py-3"></div>
+          <div class="text-sm text-slate-300/80 leading-relaxed">
+            <p class="mb-2">Moving toward strong consistency requires coordination, increasing latency but reducing stale reads. Moving toward eventual consistency favors availability and latency at the cost of fresh reads.</p>
+          </div>
+        </aside>
+      </section>
+
+      <section data-view-panel="quorum" class="grid gap-6 md:grid-cols-2 bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm hidden">
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-semibold text-cyan-100">Quorum tuning (R/W/N)</h2>
+            <p class="text-sm text-slate-300/80 mt-1">Adjust replica count and read/write quorums. See how consistency, latency, and availability move.</p>
+          </div>
+          <div class="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-24">Replicas (N)</span>
+              <input id="quorum-n" type="range" min="3" max="9" step="1" value="3" class="flex-1 accent-cyan-300" />
+              <span id="quorum-n-label" class="text-sm font-semibold text-white w-16 text-right">3</span>
+            </label>
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-24">Read quorum (R)</span>
+              <input id="quorum-r" type="range" min="1" max="3" step="1" value="2" class="flex-1 accent-cyan-300" />
+              <span id="quorum-r-label" class="text-sm font-semibold text-white w-16 text-right">2</span>
+            </label>
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-24">Write quorum (W)</span>
+              <input id="quorum-w" type="range" min="1" max="3" step="1" value="2" class="flex-1 accent-cyan-300" />
+              <span id="quorum-w-label" class="text-sm font-semibold text-white w-16 text-right">2</span>
+            </label>
+            <p class="text-xs text-slate-300/80">For linearizable reads: aim for R + W &gt; N. Lower quorums improve availability but risk stale reads.</p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="quorum-reset" class="px-4 py-2 rounded-lg border border-white/20 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition">Reset</button>
+            <button id="quorum-explain" class="px-4 py-2 rounded-lg bg-cyan-400 text-slate-900 font-semibold hover:bg-cyan-300 transition shadow-lg shadow-cyan-900/40">Explain quorums</button>
+          </div>
+        </div>
+
+        <aside class="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full bg-cyan-400/20 border border-cyan-300/50 flex items-center justify-center text-cyan-100 font-semibold">RW</div>
+            <div>
+              <p class="text-sm text-slate-300/80">Current posture</p>
+              <p id="quorum-stance" class="text-lg font-semibold text-white">R2/W2 on N3</p>
+            </div>
+          </div>
+          <div id="quorum-message" role="status" aria-live="polite" class="hidden text-sm rounded-xl border border-amber-300/40 bg-amber-400/10 text-amber-50 px-4 py-3"></div>
+          <div class="grid grid-cols-3 gap-3 text-sm text-slate-200/90">
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Consistency</p>
+              <p id="quorum-consistency" class="font-semibold mt-1 text-white">R+W = 4 &gt; N (strong)</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Availability</p>
+              <p id="quorum-availability" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Latency</p>
+              <p id="quorum-latency" class="font-semibold mt-1 text-white">—</p>
+            </div>
+          </div>
+          <div class="text-sm text-slate-300/80 leading-relaxed">
+            <p class="mb-2">Higher quorums protect against stale reads but reduce availability and add coordination latency. Lower quorums move toward eventual consistency.</p>
+            <div class="flex flex-wrap gap-2 mt-2">
+              <button data-jump="topology" class="jump-btn px-3 py-1 text-xs rounded-lg border border-cyan-300/40 bg-cyan-500/10 text-cyan-100 hover:border-cyan-200/70">Open topology view</button>
+              <button data-jump="spectrum" class="jump-btn px-3 py-1 text-xs rounded-lg border border-cyan-300/40 bg-cyan-500/10 text-cyan-100 hover:border-cyan-200/70">Open consistency spectrum</button>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section data-view-panel="traffic" class="grid gap-6 md:grid-cols-2 bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm hidden">
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-semibold text-cyan-100">Traffic coping: backpressure vs shedding</h2>
+            <p class="text-sm text-slate-300/80 mt-1">Tune load, capacity, retries, and policy to see how tail latency and drop rate respond.</p>
+          </div>
+          <div class="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-28">Incoming load</span>
+              <input id="traffic-load" type="range" min="40" max="180" step="5" value="120" class="flex-1 accent-cyan-300" />
+              <span id="traffic-load-label" class="text-sm font-semibold text-white w-20 text-right">120 rps</span>
+            </label>
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-28">Capacity</span>
+              <input id="traffic-capacity" type="range" min="40" max="180" step="5" value="100" class="flex-1 accent-cyan-300" />
+              <span id="traffic-capacity-label" class="text-sm font-semibold text-white w-20 text-right">100 rps</span>
+            </label>
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-28">Retries</span>
+              <input id="traffic-retries" type="range" min="0" max="5" step="1" value="2" class="flex-1 accent-cyan-300" />
+              <span id="traffic-retries-label" class="text-sm font-semibold text-white w-20 text-right">x2</span>
+            </label>
+          </div>
+
+          <div class="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+            <p class="text-sm text-slate-200/90 font-semibold">Policy</p>
+            <div class="flex flex-wrap gap-2">
+              <button data-traffic-policy="backpressure" class="traffic-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Backpressure (block)</button>
+              <button data-traffic-policy="shed" class="traffic-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Shed (fail fast)</button>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-3">
+            <button id="traffic-reset" class="px-4 py-2 rounded-lg border border-white/20 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition">Reset</button>
+            <button id="traffic-explain" class="px-4 py-2 rounded-lg bg-cyan-400 text-slate-900 font-semibold hover:bg-cyan-300 transition shadow-lg shadow-cyan-900/40">Explain policies</button>
+          </div>
+        </div>
+
+        <aside class="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full bg-cyan-400/20 border border-cyan-300/50 flex items-center justify-center text-cyan-100 font-semibold">TRF</div>
+            <div>
+              <p class="text-sm text-slate-300/80">Current stance</p>
+              <p id="traffic-stance" class="text-lg font-semibold text-white">Backpressure</p>
+            </div>
+          </div>
+          <div id="traffic-message" role="status" aria-live="polite" class="hidden text-sm rounded-xl border border-amber-300/40 bg-amber-400/10 text-amber-50 px-4 py-3"></div>
+          <div class="grid grid-cols-3 gap-3 text-sm text-slate-200/90">
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Drop rate</p>
+              <p id="traffic-drop" class="font-semibold mt-1 text-white">0%</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Tail latency</p>
+              <p id="traffic-latency" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">User experience</p>
+              <p id="traffic-experience" class="font-semibold mt-1 text-white">—</p>
+            </div>
+          </div>
+          <div class="text-sm text-slate-300/80 leading-relaxed">
+            <p class="mb-2">Backpressure keeps queues bounded and preserves correctness but can spike tail latencies. Shedding protects latency under surge but sacrifices some requests.</p>
+            <div class="flex flex-wrap gap-2 mt-2">
+              <button data-jump="queueing" class="jump-btn px-3 py-1 text-xs rounded-lg border border-cyan-300/40 bg-cyan-500/10 text-cyan-100 hover:border-cyan-200/70">Open queueing view</button>
+              <button data-jump="retries" class="jump-btn px-3 py-1 text-xs rounded-lg border border-cyan-300/40 bg-cyan-500/10 text-cyan-100 hover:border-cyan-200/70">Open retries view</button>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section data-view-panel="durability" class="grid gap-6 md:grid-cols-2 bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm hidden">
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-semibold text-cyan-100">Durability vs latency vs cost</h2>
+            <p class="text-sm text-slate-300/80 mt-1">Adjust replica count, regions, and replication mode. See durability, write latency, and cost ripple.</p>
+          </div>
+          <div class="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-28">Replicas</span>
+              <input id="dura-replicas" type="range" min="2" max="7" step="1" value="3" class="flex-1 accent-cyan-300" />
+              <span id="dura-replicas-label" class="text-sm font-semibold text-white w-20 text-right">3</span>
+            </label>
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-28">Regions</span>
+              <input id="dura-regions" type="range" min="1" max="3" step="1" value="2" class="flex-1 accent-cyan-300" />
+              <span id="dura-regions-label" class="text-sm font-semibold text-white w-20 text-right">2</span>
+            </label>
+          </div>
+          <div class="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+            <p class="text-sm text-slate-200/90 font-semibold">Replication mode</p>
+            <div class="flex flex-wrap gap-2">
+              <button data-dura-mode="sync" class="dura-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Synchronous</button>
+              <button data-dura-mode="semi" class="dura-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Semi-sync</button>
+              <button data-dura-mode="async" class="dura-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Asynchronous</button>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="dura-reset" class="px-4 py-2 rounded-lg border border-white/20 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition">Reset</button>
+            <button id="dura-explain" class="px-4 py-2 rounded-lg bg-cyan-400 text-slate-900 font-semibold hover:bg-cyan-300 transition shadow-lg shadow-cyan-900/40">Explain durability</button>
+          </div>
+        </div>
+
+        <aside class="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full bg-cyan-400/20 border border-cyan-300/50 flex items-center justify-center text-cyan-100 font-semibold">D</div>
+            <div>
+              <p class="text-sm text-slate-300/80">Current posture</p>
+              <p id="dura-stance" class="text-lg font-semibold text-white">3 replicas, 2 regions (sync)</p>
+            </div>
+          </div>
+          <div id="dura-message" role="status" aria-live="polite" class="hidden text-sm rounded-xl border border-amber-300/40 bg-amber-400/10 text-amber-50 px-4 py-3"></div>
+          <div class="grid grid-cols-3 gap-3 text-sm text-slate-200/90">
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Durability</p>
+              <p id="dura-durability" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Write latency</p>
+              <p id="dura-latency" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Cost</p>
+              <p id="dura-cost" class="font-semibold mt-1 text-white">—</p>
+            </div>
+          </div>
+          <div class="text-sm text-slate-300/80 leading-relaxed">
+            <p class="mb-2">More replicas and regions harden durability but add latency and spend. Sync replication waits for acks; async is quick but risks loss on failover.</p>
+          </div>
+        </aside>
+      </section>
+
+      <section data-view-panel="isolation" class="grid gap-6 md:grid-cols-2 bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm hidden">
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-semibold text-cyan-100">Transaction isolation</h2>
+            <p class="text-sm text-slate-300/80 mt-1">Pick an isolation level to see which anomalies are prevented and what latency/throughput costs appear.</p>
+          </div>
+          <div class="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+            <p class="text-sm text-slate-200/90 font-semibold">Isolation level</p>
+            <div class="flex flex-wrap gap-2">
+              <button data-iso="rc" class="iso-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Read committed</button>
+              <button data-iso="rr" class="iso-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Repeatable read</button>
+              <button data-iso="si" class="iso-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Snapshot isolation</button>
+              <button data-iso="serializable" class="iso-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Serializable</button>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="iso-reset" class="px-4 py-2 rounded-lg border border-white/20 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition">Reset</button>
+            <button id="iso-explain" class="px-4 py-2 rounded-lg bg-cyan-400 text-slate-900 font-semibold hover:bg-cyan-300 transition shadow-lg shadow-cyan-900/40">Explain anomalies</button>
+          </div>
+        </div>
+
+        <aside class="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full bg-cyan-400/20 border border-cyan-300/50 flex items-center justify-center text-cyan-100 font-semibold">ISO</div>
+            <div>
+              <p class="text-sm text-slate-300/80">Current posture</p>
+              <p id="iso-stance" class="text-lg font-semibold text-white">Serializable</p>
+            </div>
+          </div>
+          <div id="iso-message" role="status" aria-live="polite" class="hidden text-sm rounded-xl border border-amber-300/40 bg-amber-400/10 text-amber-50 px-4 py-3"></div>
+          <div class="grid grid-cols-3 gap-3 text-sm text-slate-200/90">
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Blocks anomalies</p>
+              <p id="iso-anomalies" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Latency impact</p>
+              <p id="iso-latency" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Throughput</p>
+              <p id="iso-throughput" class="font-semibold mt-1 text-white">—</p>
+            </div>
+          </div>
+          <div class="text-sm text-slate-300/80 leading-relaxed">
+            <p class="mb-2">Higher isolation prevents more anomalies but adds coordination and can reduce concurrency. Pick the level that matches your correctness and throughput needs.</p>
+          </div>
+        </aside>
+      </section>
+
+      <section data-view-panel="locality" class="grid gap-6 md:grid-cols-2 bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm hidden">
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-semibold text-cyan-100">Data locality</h2>
+            <p class="text-sm text-slate-300/80 mt-1">Place data centrally, per-region, or at the edge. See latency, cross-region chatter, and freshness.</p>
+          </div>
+          <div class="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+            <p class="text-sm text-slate-200/90 font-semibold">Placement</p>
+            <div class="flex flex-wrap gap-2">
+              <button data-locality="central" class="locality-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Centralized</button>
+              <button data-locality="regional" class="locality-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Per-region</button>
+              <button data-locality="edge" class="locality-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Edge cached</button>
+            </div>
+          </div>
+          <div class="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-32">Read/write split</span>
+              <input id="locality-ratio" type="range" min="10" max="90" step="5" value="70" class="flex-1 accent-cyan-300" />
+              <span id="locality-ratio-label" class="text-sm font-semibold text-white w-20 text-right">70/30</span>
+            </label>
+            <p class="text-xs text-slate-300/80">Higher reads benefit more from edge/regional caches; writes pay coordination.</p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="locality-reset" class="px-4 py-2 rounded-lg border border-white/20 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition">Reset</button>
+            <button id="locality-explain" class="px-4 py-2 rounded-lg bg-cyan-400 text-slate-900 font-semibold hover:bg-cyan-300 transition shadow-lg shadow-cyan-900/40">Explain locality</button>
+          </div>
+        </div>
+        <aside class="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full bg-cyan-400/20 border border-cyan-300/50 flex items-center justify-center text-cyan-100 font-semibold">LOC</div>
+            <div>
+              <p class="text-sm text-slate-300/80">Current placement</p>
+              <p id="locality-stance" class="text-lg font-semibold text-white">Regional</p>
+            </div>
+          </div>
+          <div id="locality-message" role="status" aria-live="polite" class="hidden text-sm rounded-xl border border-amber-300/40 bg-amber-400/10 text-amber-50 px-4 py-3"></div>
+          <div class="grid grid-cols-3 gap-3 text-sm text-slate-200/90">
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Median latency</p>
+              <p id="locality-latency" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Cross-region</p>
+              <p id="locality-cross" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Freshness</p>
+              <p id="locality-fresh" class="font-semibold mt-1 text-white">—</p>
+            </div>
+          </div>
+          <div class="text-sm text-slate-300/80 leading-relaxed">
+            <p class="mb-2">Edge/regional placement cuts latency but can add staleness and replication cost. Central keeps data fresh and simple at the expense of distance.</p>
+          </div>
+        </aside>
+      </section>
+
+      <section data-view-panel="topology" class="grid gap-6 md:grid-cols-2 bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm hidden">
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-semibold text-cyan-100">Replication topology</h2>
+            <p class="text-sm text-slate-300/80 mt-1">Pick leader/follower, multi-leader, or leaderless. See conflict risk, failover, and client complexity.</p>
+          </div>
+          <div class="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+            <div class="flex flex-wrap gap-2">
+              <button data-topology="leader" class="topology-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Leader/followers</button>
+              <button data-topology="multi" class="topology-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Multi-leader</button>
+              <button data-topology="leaderless" class="topology-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Leaderless</button>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="topology-reset" class="px-4 py-2 rounded-lg border border-white/20 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition">Reset</button>
+            <button id="topology-explain" class="px-4 py-2 rounded-lg bg-cyan-400 text-slate-900 font-semibold hover:bg-cyan-300 transition shadow-lg shadow-cyan-900/40">Explain topologies</button>
+          </div>
+        </div>
+        <aside class="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full bg-cyan-400/20 border border-cyan-300/50 flex items-center justify-center text-cyan-100 font-semibold">REP</div>
+            <div>
+              <p class="text-sm text-slate-300/80">Current topology</p>
+              <p id="topology-stance" class="text-lg font-semibold text-white">Leader/followers</p>
+            </div>
+          </div>
+          <div id="topology-message" role="status" aria-live="polite" class="hidden text-sm rounded-xl border border-amber-300/40 bg-amber-400/10 text-amber-50 px-4 py-3"></div>
+          <div class="grid grid-cols-3 gap-3 text-sm text-slate-200/90">
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Conflict risk</p>
+              <p id="topology-conflicts" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Failover</p>
+              <p id="topology-failover" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Client complexity</p>
+              <p id="topology-complexity" class="font-semibold mt-1 text-white">—</p>
+            </div>
+          </div>
+          <div class="text-sm text-slate-300/80 leading-relaxed">
+            <p class="mb-2">Leader models simplify conflict but need failover. Multi-leader helps writes close to users but risks conflicts. Leaderless boosts availability with quorum rules.</p>
+            <div class="flex flex-wrap gap-2 mt-2">
+              <button data-jump="quorum" class="jump-btn px-3 py-1 text-xs rounded-lg border border-cyan-300/40 bg-cyan-500/10 text-cyan-100 hover:border-cyan-200/70">Open quorums view</button>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section data-view-panel="retries" class="grid gap-6 md:grid-cols-2 bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm hidden">
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-semibold text-cyan-100">Retry and jitter</h2>
+            <p class="text-sm text-slate-300/80 mt-1">Tune retries, backoff, and jitter to see tail latency, load amplification, and herd risk.</p>
+          </div>
+          <div class="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-28">Retries</span>
+              <input id="retry-count" type="range" min="0" max="6" step="1" value="2" class="flex-1 accent-cyan-300" />
+              <span id="retry-count-label" class="text-sm font-semibold text-white w-14 text-right">2</span>
+            </label>
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-28">Backoff (ms)</span>
+              <input id="retry-backoff" type="range" min="50" max="800" step="25" value="200" class="flex-1 accent-cyan-300" />
+              <span id="retry-backoff-label" class="text-sm font-semibold text-white w-16 text-right">200</span>
+            </label>
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-28">Jitter (%)</span>
+              <input id="retry-jitter" type="range" min="0" max="100" step="10" value="40" class="flex-1 accent-cyan-300" />
+              <span id="retry-jitter-label" class="text-sm font-semibold text-white w-14 text-right">40</span>
+            </label>
+            <p class="text-xs text-slate-300/80">Retries help transient failures but can amplify traffic. Jitter smooths bursts.</p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="retry-reset" class="px-4 py-2 rounded-lg border border-white/20 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition">Reset</button>
+            <button id="retry-explain" class="px-4 py-2 rounded-lg bg-cyan-400 text-slate-900 font-semibold hover:bg-cyan-300 transition shadow-lg shadow-cyan-900/40">Explain retries</button>
+          </div>
+        </div>
+        <aside class="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full bg-cyan-400/20 border border-cyan-300/50 flex items-center justify-center text-cyan-100 font-semibold">RTY</div>
+            <div>
+              <p class="text-sm text-slate-300/80">Current stance</p>
+              <p id="retry-stance" class="text-lg font-semibold text-white">2 retries</p>
+            </div>
+          </div>
+          <div id="retry-message" role="status" aria-live="polite" class="hidden text-sm rounded-xl border border-amber-300/40 bg-amber-400/10 text-amber-50 px-4 py-3"></div>
+          <div class="grid grid-cols-3 gap-3 text-sm text-slate-200/90">
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Tail latency</p>
+              <p id="retry-latency" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Load amp</p>
+              <p id="retry-load" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Herd risk</p>
+              <p id="retry-herd" class="font-semibold mt-1 text-white">—</p>
+            </div>
+          </div>
+          <div class="text-sm text-slate-300/80 leading-relaxed">
+            <p class="mb-2">Tune retries with backoff and jitter to avoid retry storms. More retries raise p99 unless jittered.</p>
+            <div class="flex flex-wrap gap-2 mt-2">
+              <button data-jump="traffic" class="jump-btn px-3 py-1 text-xs rounded-lg border border-cyan-300/40 bg-cyan-500/10 text-cyan-100 hover:border-cyan-200/70">Open traffic coping</button>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section data-view-panel="queueing" class="grid gap-6 md:grid-cols-2 bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm hidden">
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-semibold text-cyan-100">Queueing strategy</h2>
+            <p class="text-sm text-slate-300/80 mt-1">Compare bounded backpressure, unbounded queues, and priority queues. See tail latency, drops, and starvation risk.</p>
+          </div>
+          <div class="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+            <div class="flex flex-wrap gap-2">
+              <button data-queue="bounded" class="queue-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Bounded + backpressure</button>
+              <button data-queue="unbounded" class="queue-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Unbounded</button>
+              <button data-queue="priority" class="queue-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Priority</button>
+            </div>
+          </div>
+          <div class="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-28">Queue size</span>
+              <input id="queue-size" type="range" min="10" max="200" step="10" value="80" class="flex-1 accent-cyan-300" />
+              <span id="queue-size-label" class="text-sm font-semibold text-white w-16 text-right">80</span>
+            </label>
+            <p class="text-xs text-slate-300/80">Smaller queues reduce latency but risk shedding; big queues hide pain and raise tail latency.</p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="queue-reset" class="px-4 py-2 rounded-lg border border-white/20 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition">Reset</button>
+            <button id="queue-explain" class="px-4 py-2 rounded-lg bg-cyan-400 text-slate-900 font-semibold hover:bg-cyan-300 transition shadow-lg shadow-cyan-900/40">Explain queueing</button>
+          </div>
+        </div>
+        <aside class="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full bg-cyan-400/20 border border-cyan-300/50 flex items-center justify-center text-cyan-100 font-semibold">Q</div>
+            <div>
+              <p class="text-sm text-slate-300/80">Current stance</p>
+              <p id="queue-stance" class="text-lg font-semibold text-white">Bounded</p>
+            </div>
+          </div>
+          <div id="queue-message" role="status" aria-live="polite" class="hidden text-sm rounded-xl border border-amber-300/40 bg-amber-400/10 text-amber-50 px-4 py-3"></div>
+          <div class="grid grid-cols-3 gap-3 text-sm text-slate-200/90">
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Tail latency</p>
+              <p id="queue-latency" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Drop risk</p>
+              <p id="queue-drop" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Starvation</p>
+              <p id="queue-starve" class="font-semibold mt-1 text-white">—</p>
+            </div>
+          </div>
+          <div class="text-sm text-slate-300/80 leading-relaxed">
+            <p class="mb-2">Backpressure protects systems at cost of latency; unbounded queues hide overload; priority queues help VIPs but can starve others.</p>
+          </div>
+        </aside>
+      </section>
+
+      <section data-view-panel="cache" class="grid gap-6 md:grid-cols-2 bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm hidden">
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-semibold text-cyan-100">Caching stance</h2>
+            <p class="text-sm text-slate-300/80 mt-1">Tune hit rate and TTL; pick write policy to see origin load, staleness, and correctness risk.</p>
+          </div>
+          <div class="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-28">Hit rate</span>
+              <input id="cache-hit" type="range" min="10" max="99" step="1" value="70" class="flex-1 accent-cyan-300" />
+              <span id="cache-hit-label" class="text-sm font-semibold text-white w-16 text-right">70%</span>
+            </label>
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-28">TTL (s)</span>
+              <input id="cache-ttl" type="range" min="1" max="120" step="1" value="30" class="flex-1 accent-cyan-300" />
+              <span id="cache-ttl-label" class="text-sm font-semibold text-white w-16 text-right">30</span>
+            </label>
+          </div>
+          <div class="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+            <p class="text-sm text-slate-200/90 font-semibold">Write policy</p>
+            <div class="flex flex-wrap gap-2">
+              <button data-cache-mode="through" class="cache-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Write-through</button>
+              <button data-cache-mode="back" class="cache-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Write-back</button>
+              <button data-cache-mode="refresh" class="cache-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Refresh-ahead</button>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="cache-reset" class="px-4 py-2 rounded-lg border border-white/20 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition">Reset</button>
+            <button id="cache-explain" class="px-4 py-2 rounded-lg bg-cyan-400 text-slate-900 font-semibold hover:bg-cyan-300 transition shadow-lg shadow-cyan-900/40">Explain caching</button>
+          </div>
+        </div>
+        <aside class="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full bg-cyan-400/20 border border-cyan-300/50 flex items-center justify-center text-cyan-100 font-semibold">CCH</div>
+            <div>
+              <p class="text-sm text-slate-300/80">Current stance</p>
+              <p id="cache-stance" class="text-lg font-semibold text-white">70% hit, 30s TTL</p>
+            </div>
+          </div>
+          <div id="cache-message" role="status" aria-live="polite" class="hidden text-sm rounded-xl border border-amber-300/40 bg-amber-400/10 text-amber-50 px-4 py-3"></div>
+          <div class="grid grid-cols-3 gap-3 text-sm text-slate-200/90">
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Origin load</p>
+              <p id="cache-origin" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Staleness</p>
+              <p id="cache-stale" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Correctness risk</p>
+              <p id="cache-risk" class="font-semibold mt-1 text-white">—</p>
+            </div>
+          </div>
+          <div class="text-sm text-slate-300/80 leading-relaxed">
+            <p class="mb-2">Higher TTL and hit rates reduce origin load but risk staleness. Write-through is safest; write-back is fastest but risks loss; refresh-ahead improves freshness.</p>
+            <div class="flex flex-wrap gap-2 mt-2">
+              <button data-jump="spectrum" class="jump-btn px-3 py-1 text-xs rounded-lg border border-cyan-300/40 bg-cyan-500/10 text-cyan-100 hover:border-cyan-200/70">Open consistency spectrum</button>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section data-view-panel="circuit" class="grid gap-6 md:grid-cols-2 bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm hidden">
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-semibold text-cyan-100">Circuit breaker</h2>
+            <p class="text-sm text-slate-300/80 mt-1">Set error threshold and cooldown; choose fail-fast vs fallback. See trips avoided and user impact.</p>
+          </div>
+          <div class="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-32">Error threshold (%)</span>
+              <input id="circuit-threshold" type="range" min="5" max="80" step="5" value="25" class="flex-1 accent-cyan-300" />
+              <span id="circuit-threshold-label" class="text-sm font-semibold text-white w-14 text-right">25</span>
+            </label>
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-32">Cooldown (s)</span>
+              <input id="circuit-cooldown" type="range" min="5" max="120" step="5" value="30" class="flex-1 accent-cyan-300" />
+              <span id="circuit-cooldown-label" class="text-sm font-semibold text-white w-14 text-right">30</span>
+            </label>
+          </div>
+          <div class="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+            <p class="text-sm text-slate-200/90 font-semibold">Open behavior</p>
+            <div class="flex flex-wrap gap-2">
+              <button data-circuit-mode="failfast" class="circuit-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Fail fast</button>
+              <button data-circuit-mode="fallback" class="circuit-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Serve fallback</button>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="circuit-reset" class="px-4 py-2 rounded-lg border border-white/20 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition">Reset</button>
+            <button id="circuit-explain" class="px-4 py-2 rounded-lg bg-cyan-400 text-slate-900 font-semibold hover:bg-cyan-300 transition shadow-lg shadow-cyan-900/40">Explain circuit breaking</button>
+          </div>
+        </div>
+        <aside class="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full bg-cyan-400/20 border border-cyan-300/50 flex items-center justify-center text-cyan-100 font-semibold">CB</div>
+            <div>
+              <p class="text-sm text-slate-300/80">Current stance</p>
+              <p id="circuit-stance" class="text-lg font-semibold text-white">25% threshold</p>
+            </div>
+          </div>
+          <div id="circuit-message" role="status" aria-live="polite" class="hidden text-sm rounded-xl border border-amber-300/40 bg-amber-400/10 text-amber-50 px-4 py-3"></div>
+          <div class="grid grid-cols-3 gap-3 text-sm text-slate-200/90">
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Trips avoided</p>
+              <p id="circuit-trips" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">User impact</p>
+              <p id="circuit-impact" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Recovery speed</p>
+              <p id="circuit-recovery" class="font-semibold mt-1 text-white">—</p>
+            </div>
+          </div>
+          <div class="text-sm text-slate-300/80 leading-relaxed">
+            <p class="mb-2">Lower thresholds trip faster, protecting dependencies but increasing fast-fail. Fallback keeps UX but may serve degraded data.</p>
+            <div class="flex flex-wrap gap-2 mt-2">
+              <button data-jump="traffic" class="jump-btn px-3 py-1 text-xs rounded-lg border border-cyan-300/40 bg-cyan-500/10 text-cyan-100 hover:border-cyan-200/70">Open traffic coping</button>
+              <button data-jump="retries" class="jump-btn px-3 py-1 text-xs rounded-lg border border-cyan-300/40 bg-cyan-500/10 text-cyan-100 hover:border-cyan-200/70">Open retries</button>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section data-view-panel="indexing" class="grid gap-6 md:grid-cols-2 bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm hidden">
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-semibold text-cyan-100">Indexing trade-offs</h2>
+            <p class="text-sm text-slate-300/80 mt-1">Add indexes to speed reads at the cost of writes and storage.</p>
+          </div>
+          <div class="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-28">Indexes</span>
+              <input id="index-count" type="range" min="0" max="12" step="1" value="3" class="flex-1 accent-cyan-300" />
+              <span id="index-count-label" class="text-sm font-semibold text-white w-16 text-right">3</span>
+            </label>
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-28">Hot writes (%)</span>
+              <input id="index-hot" type="range" min="0" max="100" step="5" value="40" class="flex-1 accent-cyan-300" />
+              <span id="index-hot-label" class="text-sm font-semibold text-white w-16 text-right">40</span>
+            </label>
+            <p class="text-xs text-slate-300/80">More indexes help reads, but hot-write tables pay more write amplification.</p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="index-reset" class="px-4 py-2 rounded-lg border border-white/20 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition">Reset</button>
+            <button id="index-explain" class="px-4 py-2 rounded-lg bg-cyan-400 text-slate-900 font-semibold hover:bg-cyan-300 transition shadow-lg shadow-cyan-900/40">Explain indexing</button>
+          </div>
+        </div>
+        <aside class="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full bg-cyan-400/20 border border-cyan-300/50 flex items-center justify-center text-cyan-100 font-semibold">IDX</div>
+            <div>
+              <p class="text-sm text-slate-300/80">Current stance</p>
+              <p id="index-stance" class="text-lg font-semibold text-white">3 indexes</p>
+            </div>
+          </div>
+          <div id="index-message" role="status" aria-live="polite" class="hidden text-sm rounded-xl border border-amber-300/40 bg-amber-400/10 text-amber-50 px-4 py-3"></div>
+          <div class="grid grid-cols-3 gap-3 text-sm text-slate-200/90">
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Read latency</p>
+              <p id="index-read" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Write latency</p>
+              <p id="index-write" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Storage</p>
+              <p id="index-storage" class="font-semibold mt-1 text-white">—</p>
+            </div>
+          </div>
+          <div class="text-sm text-slate-300/80 leading-relaxed">
+            <p class="mb-2">Indexing optimizes reads but increases write amplification and storage. Keep hot-write tables lean.</p>
+            <div class="flex flex-wrap gap-2 mt-2">
+              <button data-jump="cache" class="jump-btn px-3 py-1 text-xs rounded-lg border border-cyan-300/40 bg-cyan-500/10 text-cyan-100 hover:border-cyan-200/70">Open cache view</button>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section data-view-panel="schema" class="grid gap-6 md:grid-cols-2 bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm hidden">
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-semibold text-cyan-100">Schema evolution</h2>
+            <p class="text-sm text-slate-300/80 mt-1">Pick compatibility stance and deploy order. See safety and velocity.</p>
+          </div>
+          <div class="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+            <p class="text-sm text-slate-200/90 font-semibold">Compatibility</p>
+            <div class="flex flex-wrap gap-2">
+              <button data-schema="backward" class="schema-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Backward</button>
+              <button data-schema="forward" class="schema-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Forward</button>
+              <button data-schema="both" class="schema-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Full</button>
+            </div>
+          </div>
+          <div class="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+            <p class="text-sm text-slate-200/90 font-semibold">Deploy order</p>
+            <div class="flex flex-wrap gap-2">
+              <button data-schema-order="app" class="schema-order-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">App first</button>
+              <button data-schema-order="db" class="schema-order-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">DB first</button>
+              <button data-schema-order="staged" class="schema-order-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Staged</button>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="schema-reset" class="px-4 py-2 rounded-lg border border-white/20 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition">Reset</button>
+            <button id="schema-explain" class="px-4 py-2 rounded-lg bg-cyan-400 text-slate-900 font-semibold hover:bg-cyan-300 transition shadow-lg shadow-cyan-900/40">Explain schema rules</button>
+          </div>
+        </div>
+        <aside class="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full bg-cyan-400/20 border border-cyan-300/50 flex items-center justify-center text-cyan-100 font-semibold">SCH</div>
+            <div>
+              <p class="text-sm text-slate-300/80">Current stance</p>
+              <p id="schema-stance" class="text-lg font-semibold text-white">Full compatibility</p>
+            </div>
+          </div>
+          <div id="schema-message" role="status" aria-live="polite" class="hidden text-sm rounded-xl border border-amber-300/40 bg-amber-400/10 text-amber-50 px-4 py-3"></div>
+          <div class="grid grid-cols-3 gap-3 text-sm text-slate-200/90">
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Safety</p>
+              <p id="schema-safety" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Velocity</p>
+              <p id="schema-velocity" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Rollback pain</p>
+              <p id="schema-rollback" class="font-semibold mt-1 text-white">—</p>
+            </div>
+          </div>
+          <div class="text-sm text-slate-300/80 leading-relaxed">
+            <p class="mb-2">Full compatibility and staged deploys maximize safety; app-first or DB-first shortcuts move faster with more blast radius.</p>
+            <div class="flex flex-wrap gap-2 mt-2">
+              <button data-jump="isolation" class="jump-btn px-3 py-1 text-xs rounded-lg border border-cyan-300/40 bg-cyan-500/10 text-cyan-100 hover:border-cyan-200/70">Open isolation</button>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section data-view-panel="security" class="grid gap-6 md:grid-cols-2 bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm hidden">
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-semibold text-cyan-100">Security posture</h2>
+            <p class="text-sm text-slate-300/80 mt-1">Toggle TLS handling and auth scheme. See latency overhead and exposure risk.</p>
+          </div>
+          <div class="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+            <p class="text-sm text-slate-200/90 font-semibold">TLS</p>
+            <div class="flex flex-wrap gap-2">
+              <button data-security-tls="none" class="security-tls-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Off</button>
+              <button data-security-tls="edge" class="security-tls-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Terminated at edge</button>
+              <button data-security-tls="service" class="security-tls-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">End-to-end</button>
+            </div>
+          </div>
+          <div class="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+            <p class="text-sm text-slate-200/90 font-semibold">Authn/Authz</p>
+            <div class="flex flex-wrap gap-2">
+              <button data-security-auth="session" class="security-auth-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Sessions</button>
+              <button data-security-auth="jwt" class="security-auth-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">JWT</button>
+              <button data-security-auth="mtls" class="security-auth-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">mTLS</button>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="security-reset" class="px-4 py-2 rounded-lg border border-white/20 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition">Reset</button>
+            <button id="security-explain" class="px-4 py-2 rounded-lg bg-cyan-400 text-slate-900 font-semibold hover:bg-cyan-300 transition shadow-lg shadow-cyan-900/40">Explain posture</button>
+          </div>
+        </div>
+        <aside class="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full bg-cyan-400/20 border border-cyan-300/50 flex items-center justify-center text-cyan-100 font-semibold">SEC</div>
+            <div>
+              <p class="text-sm text-slate-300/80">Current posture</p>
+              <p id="security-stance" class="text-lg font-semibold text-white">E2E TLS + JWT</p>
+            </div>
+          </div>
+          <div id="security-message" role="status" aria-live="polite" class="hidden text-sm rounded-xl border border-amber-300/40 bg-amber-400/10 text-amber-50 px-4 py-3"></div>
+          <div class="grid grid-cols-3 gap-3 text-sm text-slate-200/90">
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Latency overhead</p>
+              <p id="security-latency" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Exposure risk</p>
+              <p id="security-risk" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Ops complexity</p>
+              <p id="security-ops" class="font-semibold mt-1 text-white">—</p>
+            </div>
+          </div>
+          <div class="text-sm text-slate-300/80 leading-relaxed">
+            <p class="mb-2">E2E TLS plus strong auth raises latency but cuts risk. Edge termination is faster but trusts the mesh. Sessions vs JWT vs mTLS trade simplicity vs portability vs strength.</p>
+          </div>
+        </aside>
+      </section>
+
+      <section data-view-panel="tenancy" class="grid gap-6 md:grid-cols-2 bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm hidden">
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-semibold text-cyan-100">Resource isolation</h2>
+            <p class="text-sm text-slate-300/80 mt-1">Set per-tenant caps and total capacity; choose burstable vs strict. See noisy neighbor risk and utilization.</p>
+          </div>
+          <div class="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-32">Per-tenant cap</span>
+              <input id="tenancy-cap" type="range" min="10" max="200" step="10" value="80" class="flex-1 accent-cyan-300" />
+              <span id="tenancy-cap-label" class="text-sm font-semibold text-white w-16 text-right">80</span>
+            </label>
+            <label class="flex items-center gap-3">
+              <span class="text-sm text-slate-200/90 w-32">Total capacity</span>
+              <input id="tenancy-total" type="range" min="100" max="600" step="20" value="300" class="flex-1 accent-cyan-300" />
+              <span id="tenancy-total-label" class="text-sm font-semibold text-white w-16 text-right">300</span>
+            </label>
+          </div>
+          <div class="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+            <p class="text-sm text-slate-200/90 font-semibold">Policy</p>
+            <div class="flex flex-wrap gap-2">
+              <button data-tenancy-policy="strict" class="tenancy-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Strict caps</button>
+              <button data-tenancy-policy="burstable" class="tenancy-btn px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:border-cyan-200/60 transition">Burstable</button>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="tenancy-reset" class="px-4 py-2 rounded-lg border border-white/20 bg-white/5 text-slate-100 hover:border-cyan-200/60 hover:text-white transition">Reset</button>
+            <button id="tenancy-explain" class="px-4 py-2 rounded-lg bg-cyan-400 text-slate-900 font-semibold hover:bg-cyan-300 transition shadow-lg shadow-cyan-900/40">Explain isolation</button>
+          </div>
+        </div>
+        <aside class="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full bg-cyan-400/20 border border-cyan-300/50 flex items-center justify-center text-cyan-100 font-semibold">TEN</div>
+            <div>
+              <p class="text-sm text-slate-300/80">Current posture</p>
+              <p id="tenancy-stance" class="text-lg font-semibold text-white">Strict caps</p>
+            </div>
+          </div>
+          <div id="tenancy-message" role="status" aria-live="polite" class="hidden text-sm rounded-xl border border-amber-300/40 bg-amber-400/10 text-amber-50 px-4 py-3"></div>
+          <div class="grid grid-cols-3 gap-3 text-sm text-slate-200/90">
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Noisy neighbor</p>
+              <p id="tenancy-noise" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Utilization</p>
+              <p id="tenancy-util" class="font-semibold mt-1 text-white">—</p>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-3">
+              <p class="text-xs uppercase tracking-wide text-slate-300/70">Support load</p>
+              <p id="tenancy-support" class="font-semibold mt-1 text-white">—</p>
+            </div>
+          </div>
+          <div class="text-sm text-slate-300/80 leading-relaxed">
+            <p class="mb-2">Strict caps protect neighbors but can strand capacity. Burstable improves utilization but needs strong observability and SLOs.</p>
+          </div>
+        </aside>
+      </section>
+    </main>
+    <section class="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl shadow-cyan-900/30 backdrop-blur-sm">
+      <div class="flex flex-wrap justify-between gap-3 items-baseline">
+        <div>
+          <p class="text-xs uppercase tracking-[0.25em] text-cyan-200/80">Deep dive</p>
+          <h2 class="text-lg font-semibold text-white">Why this trade-off matters</h2>
+        </div>
+        <!-- <span class="text-xs px-2 py-1 rounded-full border border-white/15 text-slate-200/80">Auto-updates per view</span> -->
+      </div>
+      <p id="deep-dive-body" class="mt-3 text-sm leading-relaxed text-slate-200/90">
+        CAP: during a partition you must pick consistency or availability; partition tolerance is mandatory in distributed systems.
+      </p>
+      <div class="mt-3">
+        <p class="text-xs uppercase tracking-wide text-slate-300/80">Use this when</p>
+        <ul id="deep-dive-uses" class="list-disc pl-5 text-sm leading-relaxed text-slate-200/90 mt-1 space-y-1">
+        </ul>
+      </div>
+      <div class="mt-3 space-x-2 text-sm text-cyan-100" id="deep-dive-links"></div>
+    </section>
+  </div>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
